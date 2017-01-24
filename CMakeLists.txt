@@ -152,18 +152,24 @@ if("${gRPC_PROTOBUF_PROVIDER}" STREQUAL "module")
       message(WARNING "gRPC_PROTOBUF_PROVIDER is \"module\" but PROTOBUF_ROOT_DIR is wrong")
   endif()
 elseif("${gRPC_PROTOBUF_PROVIDER}" STREQUAL "package")
-  find_package(protobuf CONFIG)
-  if(protobuf_FOUND)
-    if(TARGET protobuf::${_gRPC_PROTOBUF_LIBRARY_NAME})
+  find_package(Protobuf)
+  if(Protobuf_FOUND)
+    if(TARGET Protobuf::${_gRPC_PROTOBUF_LIBRARY_NAME})
       set(_gRPC_PROTOBUF_LIBRARIES protobuf::${_gRPC_PROTOBUF_LIBRARY_NAME})
+    else()
+      set(_gRPC_PROTOBUF_LIBRARIES ${Protobuf_LIBRARIES})
     endif()
     if(TARGET protobuf::libprotoc)
       set(_gRPC_PROTOBUF_PROTOC_LIBRARIES protobuf::libprotoc)
+    else()
+      set(_gRPC_PROTOBUF_PROTOC_LIBRARIES ${Protobuf_PROTOC_LIBRARIES})
     endif()
     if(TARGET protobuf::protoc)
       set(_gRPC_PROTOBUF_PROTOC protobuf::protoc)
+    else()
+      set(_gRPC_PROTOBUF_PROTOC ${Protobuf_PROTOC_EXECUTABLE})
     endif()
-    set(_gRPC_FIND_PROTOBUF "if(NOT protobuf_FOUND)\n  find_package(protobuf CONFIG)\nendif()")
+    set(_gRPC_FIND_PROTOBUF "if(NOT Protobuf_FOUND)\n  find_package(Protobuf)\nendif()")
   else()
     find_package(Protobuf MODULE)
     set(_gRPC_FIND_PROTOBUF "if(NOT Protobuf_FOUND)\n  find_package(Protobuf)\nendif()")
@@ -277,7 +283,7 @@ function(protobuf_generate_grpc_cpp)
     file(RELATIVE_PATH REL_FIL ${CMAKE_SOURCE_DIR} ${ABS_FIL})
     get_filename_component(REL_DIR ${REL_FIL} DIRECTORY)
     set(RELFIL_WE "${REL_DIR}/${FIL_WE}")
-    
+
     add_custom_command(
       OUTPUT "${_gRPC_PROTO_GENS_DIR}/${RELFIL_WE}.grpc.pb.cc"
              "${_gRPC_PROTO_GENS_DIR}/${RELFIL_WE}.grpc.pb.h"
@@ -293,7 +299,7 @@ function(protobuf_generate_grpc_cpp)
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
       COMMENT "Running gRPC C++ protocol buffer compiler on ${FIL}"
       VERBATIM)
-      
+
       set_source_files_properties("${_gRPC_PROTO_GENS_DIR}/${RELFIL_WE}.grpc.pb.cc" "${_gRPC_PROTO_GENS_DIR}/${RELFIL_WE}.grpc.pb.h" "${_gRPC_PROTO_GENS_DIR}/${RELFIL_WE}.pb.cc" "${_gRPC_PROTO_GENS_DIR}/${RELFIL_WE}.pb.h" PROPERTIES GENERATED TRUE)
   endforeach()
 endfunction()

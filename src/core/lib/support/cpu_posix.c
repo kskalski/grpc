@@ -43,7 +43,11 @@
 #include <grpc/support/sync.h>
 #include <grpc/support/useful.h>
 
-static __thread char magic_thread_local;
+static 
+#if GPR_GCC_TLS
+__thread 
+#endif
+char magic_thread_local;
 
 static long ncpus = 0;
 

@@ -229,9 +229,6 @@ elseif("${gRPC_SSL_PROVIDER}" STREQUAL "package")
   if(TARGET OpenSSL::SSL)
     set(_gRPC_SSL_LIBRARIES OpenSSL::SSL)
   endif()
-  if("${OPENSSL_VERSION}" VERSION_LESS "1.0.2")
-    set(_gRPC_SSL_LIBRARIES -l:libssl.so.1.0.2 -l:libcrypto.so.1.0.2) 
-  endif()
   set(_gRPC_FIND_SSL "if(NOT OpenSSL_FOUND)\n  find_package(OpenSSL)\nendif()")
 endif()
 
@@ -335,7 +332,7 @@ function(protobuf_generate_grpc_cpp)
              "${_gRPC_PROTO_GENS_DIR}/${RELFIL_WE}_mock.grpc.pb.h"
              "${_gRPC_PROTO_GENS_DIR}/${RELFIL_WE}.pb.cc"
              "${_gRPC_PROTO_GENS_DIR}/${RELFIL_WE}.pb.h"
-      COMMAND $<TARGET_FILE:${_gRPC_PROTOBUF_PROTOC}>
+      COMMAND <$TARGET_FILE:${_gRPC_PROTOBUF_PROTOC}>
       ARGS --grpc_out=generate_mock_code=true:${_gRPC_PROTO_GENS_DIR}
            --cpp_out=${_gRPC_PROTO_GENS_DIR}
            --plugin=protoc-gen-grpc=$<TARGET_FILE:grpc_cpp_plugin>
